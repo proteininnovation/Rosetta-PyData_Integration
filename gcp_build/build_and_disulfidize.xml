@@ -1,0 +1,169 @@
+<ROSETTASCRIPTS>
+
+<!--
+
+keywords:   de novo design, disulfide design
+author:     Christopher D. Bahl
+email:      chris.bahl@proteininnovation.org
+url:        http://function-structure.org/
+
+This protocol will design disulfide rich peptides de novo
+
+-->
+
+	<SCOREFXNS>
+
+		<!-- centroid score function used for protein backbone design -->
+		<ScoreFunction name="score_design_centroid" weights="fldsgn_cen">
+			<Reweight scoretype="cenpack" weight="1.0"/>
+			<Reweight scoretype="hbond_sr_bb" weight="1.0"/>
+			<Reweight scoretype="hbond_lr_bb" weight="1.0"/>
+			<Reweight scoretype="atom_pair_constraint" weight="1.0"/>
+			<Reweight scoretype="angle_constraint" weight="1.0"/>
+			<Reweight scoretype="dihedral_constraint" weight="1.0"/>
+		</ScoreFunction>
+
+		<!-- the current default energy function without additional energy terms -->
+		<ScoreFunction name="score_evaluate" weights="ref2015"/>
+
+	</SCOREFXNS>
+
+
+	<FILTERS>
+
+		<DisulfideEntropy name="disulfide_entropy"/>
+
+		<SheetTopology name="filter_strand_pairing" topology="%%topology%%" blueprint="%%blueprint%%" confidence="1"/>
+		<SecondaryStructureCount name="count_SS_elements" filter_helix_sheet="True" num_helix="1" num_sheet="3" num_helix_sheet="4" min_helix_length="5" min_sheet_length="3" min_loop_length="2" confidence="1"/> 
+		<CompoundStatement name="compound_toplogy_filter" >
+			<AND filter_name="filter_strand_pairing" />
+			<AND filter_name="count_SS_elements" />
+		</CompoundStatement>
+
+	</FILTERS>
+
+
+	<MOVERS>
+
+		<!-- assign secondary structure information to the pose -->
+		<Dssp name="dssp" />
+
+		<!-- design the protein main chain -->
+		<SetSecStructEnergies name="assign_secondary_structure_bonus" scorefxn="score_design_centroid" blueprint="%%blueprint%%" />
+		<BluePrintBDR name="build_mainchain" scorefxn="score_design_centroid" use_abego_bias="True" blueprint="%%blueprint%%" />
+
+		<ParsedProtocol name="mainchain_building_protocol">>
+			<Add mover="build_mainchain"/>
+			<Add mover="dssp"/>
+		</ParsedProtocol>
+
+		<LoopOver name="mainchain_building_loop" mover_name="mainchain_building_protocol" filter_name="compound_toplogy_filter" iterations="9999" drift="False" ms_whenfail="FAIL_DO_NOT_RETRY" />
+
+		<!-- search for disulfide bond positions -->
+		<Disulfidize name="disulfidizer" min_disulfides="2" max_disulfides="3" match_rt_limit="1" score_or_matchrt="true" max_disulf_score="0" min_loop="5" use_l_cys="true" keep_current_disulfides="false" include_current_disulfides="false" use_d_cys="false" />
+
+		<!-- perform design on each combination of disulfide bond patterns with the multiple pose mover -->
+		<MultiplePoseMover name="MPM_design" max_input_poses="20">
+			<SELECT>
+				<TopNByProperty n="20" order="descending">
+					<FilterReporter filter="disulfide_entropy"/>
+				</TopNByProperty>
+			</SELECT>
+			<ROSETTASCRIPTS>
+			
+			
+				<SCOREFXNS>
+			
+					<!-- the current default score function with the coordinate constraint energy term enabled -->
+					<ScoreFunction name="score_design" weights="ref2015">
+						<Reweight scoretype="aa_composition" weight="1"/>
+						<Reweight scoretype="buried_unsatisfied_penalty" weight="1.0" />
+					</ScoreFunction>
+			
+					<!-- the current default energy function without additional energy terms -->
+					<ScoreFunction name="score_evaluate" weights="ref2015"/>
+			
+				</SCOREFXNS>
+			
+			
+				<TASKOPERATIONS>
+			
+					<!-- standard task operations used for design -->
+					<LimitAromaChi2 name="limitchi2" include_trp="1" />
+					<ExtraRotamersGeneric name="extra_rotamers" ex1="True" ex2aro="True" />
+					<IncludeCurrent name="include_starting_rotamers" />
+					<ConsensusLoopDesign name="disallow_nonnative_loop_sequences" />
+			
+					<!-- layer design for flexible backbone design -->
+					<LayerDesign name="layer_all" layer="core_boundary_surface" verbose="False" use_sidechain_neighbors="True"/>
+			
+					<!-- task operations for filters -->
+					<LayerDesign name="layer_core_boundary" layer="core_boundary" verbose="False" use_sidechain_neighbors="True" />
+					<OperateOnCertainResidues name="no_repack_non-disulf">
+						<ResidueName3Isnt name3="CYS" />
+						<PreventRepackingRLT/>
+					</OperateOnCertainResidues>
+
+				</TASKOPERATIONS>
+			
+
+				<FILTERS>
+			
+					<SheetTopology name="filter_strand_pairing" topology="%%topology%%" blueprint="%%blueprint%%" confidence="0" />
+					<SecondaryStructureCount name="count_SS_elements" filter_helix_sheet="True" num_helix="1" num_sheet="3" num_helix_sheet="4" min_helix_length="5" min_sheet_length="3" min_loop_length="2" confidence="1" /> 
+					<TaskAwareScoreType name="dslf_quality_check" task_operations="no_repack_non-disulf" scorefxn="score_evaluate" score_type="dslf_fa13"  mode="individual" threshold="-0.5" confidence="1" />
+					<SecondaryStructureHasResidue name="ss_contributes_core" secstruct_fraction_threshold="1.0" res_check_task_operations="layer_core_boundary" required_restypes="VILMFYW" nres_required_per_secstruct="1" filter_helix="1" filter_sheet="1" filter_loop="0" min_helix_length="4" min_sheet_length="3" min_loop_length="1" confidence="1" />
+			
+				</FILTERS>
+			
+			
+				<MOVERS>
+			
+					<!-- assign secondary structure information to the pose -->
+					<Dssp name="dssp" />
+			
+					<!-- for adding and removing helix sequence design constraints -->
+					<AddHelixSequenceConstraints name="apply_helix_sequence_constraints" />
+					<ClearCompositionConstraintsMover name="remove_sequence_constraints" />
+			
+					<!-- flexible backbone design -->
+					<FastDesign name="fastdesign" relaxscript="rosettacon2018" task_operations="extra_rotamers,limitchi2,disallow_nonnative_loop_sequences,layer_all" scorefxn="score_design" repeats="3"/>
+			
+					<!-- relax without design specific energy terms prior to filtering and scoring -->
+					<FastRelax name="fastrelax" scorefxn="score_evaluate" repeats="1" task_operations="limitchi2,extra_rotamers,include_starting_rotamers"/>
+			
+				</MOVERS>
+			
+			
+				<PROTOCOLS>
+			
+					<Add mover_name="dssp" />
+					<Add mover_name="fastdesign" />
+					<Add mover_name="fastrelax" />
+					<Add filter_name="filter_strand_pairing" />
+					<Add filter_name="count_SS_elements" />
+					<Add filter_name="dslf_quality_check" />
+					<Add filter_name="ss_contributes_core" />
+			
+				</PROTOCOLS>
+			
+			
+			</ROSETTASCRIPTS>
+
+		</MultiplePoseMover>
+
+	</MOVERS>
+
+
+	<PROTOCOLS>
+
+		<Add mover="dssp"/>
+		<Add mover_name="assign_secondary_structure_bonus"/>
+		<Add mover_name="mainchain_building_loop" />
+		<Add mover_name="disulfidizer" />
+		<Add mover_name="MPM_design" />
+
+	</PROTOCOLS>
+
+
+</ROSETTASCRIPTS>
