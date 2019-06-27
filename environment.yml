@@ -1,0 +1,25 @@
+channels:
+  - defaults
+  - http://user:password@conda.graylab.jhu.edu/
+dependencies:
+  - python=3.7
+  - pip
+
+  - pyrosetta=2019.22
+  - dask=2.0
+  - distributed=2.0
+  - conda-forge::dask-jobqueue=0.4
+
+  - pandas
+  - matplotlib
+  - seaborn
+  - conda-forge::py3dmol=0.8
+
+  - psutil
+
+  - jupyterlab=0.35
+  - nb_conda_kernels>=2.2
+  - nb_conda>=2.2
+
+  - ipython
+  - ipykernel
