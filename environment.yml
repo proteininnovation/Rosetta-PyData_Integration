@@ -1,6 +1,6 @@
 channels:
   - defaults
-  - http://user:password@conda.graylab.jhu.edu/
+  - http://USERNAME:PASSWORD@conda.graylab.jhu.edu/
 dependencies:
   - python=3.7
   - pip
@@ -11,6 +11,8 @@ dependencies:
   - conda-forge::dask-jobqueue=0.4
 
   - pandas
+  - scipy
+  - biopython
   - matplotlib
   - seaborn
   - conda-forge::py3dmol=0.8
