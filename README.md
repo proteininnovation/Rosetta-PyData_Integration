@@ -44,7 +44,7 @@ git clone https://github.com/proteininnovation/Rosetta-PyData_Integration
 
 4. The `pyrosetta` package is available for linux and osx via the
   [`conda.graylab.jhu.edu`](http:/conda.graylab.jhu.edu) conda repository.
-  To access to this channel, obtain a PyRosetta license via
+  To access this channel, obtain a PyRosetta license via
   [rosettacommons.org](https://www.rosettacommons.org/software/license-and-download).
   Then, update the included `environment.yaml` with your license credentials.
 
