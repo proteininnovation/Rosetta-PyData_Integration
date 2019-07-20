@@ -9,9 +9,8 @@ using the `pyrosetta.distributed` namespace:
   protocols.
 * `miniprotein_design` - A hybrid batch-and-interactive workflow,
   demonstrating post-run analysis of a large-scale simulation.
-* `relax_benchmark` - Baseline performance profiling of a simple
-  distributed simulation implemented via `dask` via both multi-threaded and
-  multi-node distributed clusters.
+* `relax_benchmark` - Baseline performance profiling of a simple `dask` implemented
+   simulation via both multi-threaded and multi-node distributed clusters.
 
 # Non-Interactive Views
 
@@ -19,13 +18,13 @@ As these notebooks may include custom view components, particularly
 a [3dmol.js](https://3dmol.csb.pitt.edu) based viewer, we recommend using
 the
 [nbviewer](https://nbviewer.jupyter.org/github/proteininnovation/Rosetta-PyData_Integration/tree/master/)
-interface as a non-interactive view to these components.
+interface as a non-interactive way to view these components.
 
 # Interactive Environment
 
 The analysis notebooks within this project rely on a conda environment
 specified in `environment.yml` and `environment.lock.yml`. Conda packages
-for this environment are available for on the Linux 64-bit platform.
+for this environment are available on the Linux 64-bit platform.
 
 ## Installation 
 
