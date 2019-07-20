@@ -32,14 +32,27 @@ for this environment are available on the Linux 64-bit platform.
   recommend the [miniconda](https://docs.conda.io/en/latest/miniconda.html)
   installer.
 
-2. The `pyrosetta` package is available for linux and osx via the
-  [`conda.graylab.jhu.edu`](http:/conda.graylab.jhu.edu) conda repository.
-  To access to this channel obtain a PyRosetta license via
-  [rosettacommons.org](https://www.rosettacommons.org/software/license-and-download),
-  then update the included `environment.yaml` with your license credentials.
+2. Install `JupyterLab` via:
+```
+conda install -c conda-forge jupyterlab
+```
 
-3. Setup the working environment via:
-  `conda env create -f environment.yml -n rosetta_pydata_integration`
+3. Clone this git repository:
+```
+git clone https://github.com/proteininnovation/Rosetta-PyData_Integration
+```
+
+4. The `pyrosetta` package is available for linux and osx via the
+  [`conda.graylab.jhu.edu`](http:/conda.graylab.jhu.edu) conda repository.
+  To access to this channel, obtain a PyRosetta license via
+  [rosettacommons.org](https://www.rosettacommons.org/software/license-and-download).
+  Then, update the included `environment.yaml` with your license credentials.
+
+5. Setup the working environment via:
+  ```
+  conda env create -f environment.yml -n rosetta_pydata_integration
+  ```
+  
 
 ## Evaluation 
 
