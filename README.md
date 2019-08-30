@@ -23,8 +23,8 @@ interface as a non-interactive way to view these components.
 # Interactive Environment
 
 The analysis notebooks within this project rely on a conda environment
-specified in `environment.yml` and `environment.lock.yml`. Conda packages
-for this environment are available on the Linux 64-bit platform.
+specified in `environment.yml`. Conda packages for this environment are
+available on the Linux 64-bit platform.
 
 ## Installation 
 
@@ -32,26 +32,27 @@ for this environment are available on the Linux 64-bit platform.
   recommend the [miniconda](https://docs.conda.io/en/latest/miniconda.html)
   installer.
 
-2. Install `JupyterLab` via:
-```
-conda install -c conda-forge jupyterlab
-```
+2. Clone this git repository:
 
-3. Clone this git repository:
 ```
 git clone https://github.com/proteininnovation/Rosetta-PyData_Integration
 ```
 
-4. The `pyrosetta` package is available for linux and osx via the
+3. The `pyrosetta` package is available for linux and osx via the
   [`conda.graylab.jhu.edu`](http:/conda.graylab.jhu.edu) conda repository.
-  To access this channel, obtain a PyRosetta license via
-  [rosettacommons.org](https://www.rosettacommons.org/software/license-and-download).
-  Then, update the included `environment.yaml` with your license credentials.
+  To access this channel, obtain a [PyRosetta license](http://c4c.uwc4c.com/express_license_technologies/pyrosetta).
+  Then, update configure your `.condarc` to access the specified channel via:
 
-5. Setup the working environment via:
-  ```
-  conda env create -f environment.yml -n rosetta_pydata_integration
-  ```
+```
+conda config --add channels https://{USERNAME}:{PASSWORD}@conda.graylab.jhu.edu
+```
+
+4. Setup the working environment, including python, pyrosetta and
+   jupyterlab via:
+
+```
+conda env create -f environment.yml -n rosetta_pydata_integration
+```
   
 
 ## Evaluation 

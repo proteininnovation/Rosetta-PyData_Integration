@@ -1,6 +1,4 @@
-channels:
-  - defaults
-  - http://USERNAME:PASSWORD@conda.graylab.jhu.edu/
+name: rosetta_pydata_integration
 dependencies:
   - python=3.7
   - pip
